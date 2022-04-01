@@ -1,24 +1,23 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_jeffrey_dev/calendar.dart';
-import 'package:flutter_jeffrey_dev/event.dart';
 import 'package:flutter_jeffrey_dev/event_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_picker_web/image_picker_web.dart';
 import 'package:provider/provider.dart';
+
+import 'calendar.dart';
 
 main() => runApp(ChangeNotifierProvider(
       create: (context) => EventProvider(),
       child: MaterialApp(
         routes: {
           '/calendar': (context) => CalendarPage(),
-          '/event': (context) => EventPage(),
         },
+        debugShowCheckedModeBanner: false,
         home: HomePage(),
+        theme: ThemeData.dark(),
       ),
     ));
 
@@ -61,24 +60,20 @@ class _HomePageState extends State<HomePage> {
             flex: 60,
             child: GestureDetector(
               onTap: () async {
-                if (kIsWeb) {
-                  // Web:
-                  Image? pickedImage = await ImagePickerWeb.getImageAsWidget();
-                  if (pickedImage != null) {
-                    image = pickedImage;
-                    setState(() {});
-                  }
-                } else {
-                  // Mobile:
-                  ImagePicker _picker = ImagePicker();
-                  XFile? pickedImage =
-                      await _picker.pickImage(source: ImageSource.gallery);
+                ImagePicker _picker = ImagePicker();
+                XFile? pickedImage =
+                    await _picker.pickImage(source: ImageSource.gallery);
 
-                  if (pickedImage != null) {
+                if (pickedImage != null) {
+                  if (kIsWeb) {
+                    var bytes = await pickedImage.readAsBytes();
+                    image = Image.memory(bytes);
+                  } else {
                     var file = File(pickedImage.path);
                     image = Image.file(file);
-                    setState(() {});
                   }
+
+                  setState(() {});
                 }
               },
               child: image,
