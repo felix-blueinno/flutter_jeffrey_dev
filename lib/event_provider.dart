@@ -8,4 +8,18 @@ class EventProvider extends ChangeNotifier {
     _events.add(event);
     notifyListeners();
   }
+
+  List<Map> getEvents(DateTime selectedDay) {
+    List<Map> list = [];
+    for (var item in _events) {
+      DateTime storedDate = item['date'];
+      if (storedDate.year == selectedDay.year &&
+          storedDate.month == selectedDay.month &&
+          storedDate.day == selectedDay.day) {
+        list.add(item);
+      }
+    }
+
+    return list;
+  }
 }
