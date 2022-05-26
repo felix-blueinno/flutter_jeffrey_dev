@@ -8,18 +8,26 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'calendar.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-main() => runApp(ChangeNotifierProvider(
-      create: (context) => EventProvider(),
-      child: MaterialApp(
-        routes: {
-          '/calendar': (context) => CalendarPage(),
-        },
-        debugShowCheckedModeBanner: false,
-        home: HomePage(),
-        theme: ThemeData.dark(),
-      ),
-    ));
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(ChangeNotifierProvider(
+    create: (context) => EventProvider(),
+    child: MaterialApp(
+      routes: {
+        '/calendar': (context) => CalendarPage(),
+      },
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+      theme: ThemeData.dark().copyWith(useMaterial3: true),
+    ),
+  ));
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -79,27 +87,9 @@ class _HomePageState extends State<HomePage> {
               child: image,
             ),
           ),
-          Expanded(
-            flex: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Schedule'),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                    //     shape: CircleBorder(),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/calendar'),
-                  child: Text('Calendar'),
-                ),
-              ],
-            ),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/calendar'),
+            child: Text('Calendar'),
           ),
         ],
       ),

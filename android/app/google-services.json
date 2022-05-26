@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "669074661675",
+    "project_id": "jeff-test-7cc0a",
+    "storage_bucket": "jeff-test-7cc0a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669074661675:android:376a86c2a72a930314e56e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_jeffrey_dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669074661675-rj5diagj93smmf1frlqk53rq0j6jncns.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ-R_yQ9UENb3xAz-qm8MQ3ZoGzmYH8lM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669074661675-rj5diagj93smmf1frlqk53rq0j6jncns.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "669074661675-5hn92mouqf2elm6cutq9q4qf5oqj9qd6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterJeffreyDev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
