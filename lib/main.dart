@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(32.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /// source: https://firebase.flutter.dev/docs/auth/social
-  Future<UserCredential> signInWithGoogle() async {
+  signInWithGoogle() async {
     if (kIsWeb) {
       // Create a new provider
       GoogleAuthProvider googleProvider = GoogleAuthProvider();
@@ -262,21 +262,24 @@ class _LoginPageState extends State<LoginPage> {
       // Or use signInWithRedirect
       // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
     } else {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-
-      // Once signed in, return the UserCredential
-      return await FirebaseAuth.instance.signInWithCredential(credential);
+      /// In debug mode, cancelling google sign in will raise exception
+      /// that can't be caught by the IDE.
+      /// https://stackoverflow.com/questions/51914691/flutter-platform-exception-upon-cancelling-google-sign-in-flow
+      GoogleSignIn().signIn().then((googleUser) {
+        if (googleUser != null) {
+          // Obtain the auth details from the request
+          googleUser.authentication.then((googleAuth) {
+            if (googleAuth.accessToken != null && googleAuth.idToken != null) {
+              FirebaseAuth.instance.signInWithCredential(
+                GoogleAuthProvider.credential(
+                  idToken: googleAuth.idToken,
+                  accessToken: googleAuth.accessToken,
+                ),
+              );
+            }
+          });
+        }
+      });
     }
   }
 
