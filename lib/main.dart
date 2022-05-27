@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jeffrey_dev/event_provider.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,18 @@ void main() async {
     child: MaterialApp(
       routes: {'/calendar': (context) => CalendarPage()},
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Container();
+          }
+          if (snapshot.hasData) {
+            return CalendarPage();
+          }
+          return LoginPage();
+        },
+      ),
       theme: ThemeData.dark().copyWith(useMaterial3: true),
     ),
   ));
@@ -35,8 +47,12 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _visiblePw = false;
 
+  String _email = '';
+  String _password = '';
+
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -46,13 +62,15 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: FlutterLogo(
-                  size: 200,
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: FlutterLogo(size: screenHeight * 0.2),
                 ),
               ),
 
               /// Email
               TextField(
+                onChanged: (value) => _email = value,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   hintText: 'hello@example.com',
@@ -64,6 +82,7 @@ class _LoginPageState extends State<LoginPage> {
 
               /// Password
               TextField(
+                onChanged: (value) => _password = value,
                 obscureText: _visiblePw,
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -101,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text('Login',
                     style: TextStyle(
                         color: Colors.black, fontWeight: FontWeight.bold)),
-                onTap: () {},
+                onTap: () => login(emailAddress: _email, password: _password),
               ),
 
               SizedBox(height: 8),
@@ -114,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-                onTap: () {},
+                onTap: () => signUp(emailAddress: _email, password: _password),
               ),
 
               SizedBox(height: 16),
@@ -178,6 +197,62 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  void signUp({
+    required String emailAddress,
+    required String password,
+  }) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      print(credential);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        showMyDialog('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        showMyDialog('The account already exists for that email.');
+      } else if (e.code == 'invalid-email') {
+        showMyDialog('Invalid email address.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void login({
+    required String emailAddress,
+    required String password,
+  }) async {
+    try {
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: emailAddress, password: password);
+      print(credential);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        showMyDialog('User not found.');
+      } else if (e.code == 'wrong-password') {
+        showMyDialog('Incorrect password.');
+      } else if (e.code == 'invalid-email') {
+        showMyDialog('Invalid email address.');
+      }
+    }
+  }
+
+  void showMyDialog(String msg) => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(msg),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
 }
 
 class CoverPageButton extends StatelessWidget {
@@ -203,7 +278,7 @@ class CoverPageButton extends StatelessWidget {
     return FractionallySizedBox(
       widthFactor: widthFactor,
       child: OutlinedButton(
-        onPressed: () {},
+        onPressed: onTap,
         child: child,
         style: OutlinedButton.styleFrom(
           backgroundColor: backgroundColor,
