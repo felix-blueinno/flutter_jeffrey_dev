@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jeffrey_dev/event_provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -55,149 +57,153 @@ class _LoginPageState extends State<LoginPage> {
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: FlutterLogo(size: screenHeight * 0.2),
-                ),
-              ),
-
-              /// Email
-              TextField(
-                onChanged: (value) => _email = value,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'hello@example.com',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              SizedBox(height: 32),
-
-              /// Password
-              TextField(
-                onChanged: (value) => _password = value,
-                obscureText: _visiblePw,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Your password',
-                  border: OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    onPressed: () => setState(() => _visiblePw = !_visiblePw),
-                    icon: Icon(
-                      _visiblePw ? Icons.visibility : Icons.visibility_off,
-                    ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: FlutterLogo(size: screenHeight * 0.2),
                   ),
                 ),
-              ),
 
-              SizedBox(height: 8),
-
-              /// Forgot password
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text('Forgot Password?'),
-                  style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
+                /// Email
+                TextField(
+                  onChanged: (value) => _email = value,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'hello@example.com',
+                    border: OutlineInputBorder(),
                   ),
                 ),
-              ),
 
-              SizedBox(height: 32),
+                SizedBox(height: 32),
 
-              /// Login button
-              CoverPageButton(
-                child: Text('Login',
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold)),
-                onTap: () => login(emailAddress: _email, password: _password),
-              ),
-
-              SizedBox(height: 8),
-
-              /// Sign up button
-              CoverPageButton(
-                backgroundColor: Colors.transparent,
-                child: Text(
-                  'Register',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                onTap: () => signUp(emailAddress: _email, password: _password),
-              ),
-
-              SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey, height: 2)),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text('OR', style: TextStyle(color: Colors.grey)),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey, height: 2)),
-                ],
-              ),
-
-              SizedBox(height: 16),
-
-              // Continue with Google button
-              CoverPageButton(
-                onTap: () {},
-                backgroundColor: Color.fromRGBO(0, 0, 0, 0),
-                child: Row(
-                  children: [
-                    Image.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png',
-                      height: 24,
-                    ),
-                    Spacer(),
-                    Text(
-                      'Continue with Google',
-                      style: TextStyle(
-                        color: Colors.white,
+                /// Password
+                TextField(
+                  onChanged: (value) => _password = value,
+                  obscureText: _visiblePw,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    hintText: 'Your password',
+                    border: OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      onPressed: () => setState(() => _visiblePw = !_visiblePw),
+                      icon: Icon(
+                        _visiblePw ? Icons.visibility : Icons.visibility_off,
                       ),
                     ),
-                    Spacer(),
+                  ),
+                ),
+
+                SizedBox(height: 8),
+
+                /// Forgot password
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text('Forgot Password?'),
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 32),
+
+                /// Login button
+                CoverPageButton(
+                  child: Text('Login',
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold)),
+                  onTap: () => login(emailAddress: _email, password: _password),
+                ),
+
+                SizedBox(height: 8),
+
+                /// Sign up button
+                CoverPageButton(
+                  backgroundColor: Colors.transparent,
+                  child: Text(
+                    'Register',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  onTap: () =>
+                      signUp(emailAddress: _email, password: _password),
+                ),
+
+                SizedBox(height: 16),
+
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey, height: 2)),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text('OR', style: TextStyle(color: Colors.grey)),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey, height: 2)),
                   ],
                 ),
-              ),
 
-              SizedBox(height: 16),
+                SizedBox(height: 16),
 
-              // Continue anonymously button
-              CoverPageButton(
-                onTap: () {},
-                backgroundColor: Colors.transparent,
-                child: Row(
-                  children: [
-                    Icon(Icons.person, color: Colors.white),
-                    Spacer(),
-                    Text('Continue anonymously',
+                // Continue with Google button
+                CoverPageButton(
+                  onTap: () => signInWithGoogle(),
+                  backgroundColor: Color.fromRGBO(0, 0, 0, 0),
+                  child: Row(
+                    children: [
+                      Image.network(
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png',
+                        height: 24,
+                      ),
+                      Spacer(),
+                      Text(
+                        'Continue with Google',
                         style: TextStyle(
                           color: Colors.white,
-                        )),
-                    Spacer(),
-                  ],
+                        ),
+                      ),
+                      Spacer(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+
+                SizedBox(height: 16),
+
+                // Continue anonymously button
+                CoverPageButton(
+                  onTap: () {},
+                  backgroundColor: Colors.transparent,
+                  child: Row(
+                    children: [
+                      Icon(Icons.person, color: Colors.white),
+                      Spacer(),
+                      Text('Continue anonymously',
+                          style: TextStyle(
+                            color: Colors.white,
+                          )),
+                      Spacer(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  /// source: https://firebase.flutter.dev/docs/auth/password-auth
   void signUp({
     required String emailAddress,
     required String password,
@@ -222,6 +228,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  /// source: https://firebase.flutter.dev/docs/auth/password-auth
   void login({
     required String emailAddress,
     required String password,
@@ -238,6 +245,38 @@ class _LoginPageState extends State<LoginPage> {
       } else if (e.code == 'invalid-email') {
         showMyDialog('Invalid email address.');
       }
+    }
+  }
+
+  /// source: https://firebase.flutter.dev/docs/auth/social
+  Future<UserCredential> signInWithGoogle() async {
+    if (kIsWeb) {
+      // Create a new provider
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+      googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
+
+      // Once signed in, return the UserCredential
+      return await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
+      // Or use signInWithRedirect
+      // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
+    } else {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      // Once signed in, return the UserCredential
+      return await FirebaseAuth.instance.signInWithCredential(credential);
     }
   }
 
