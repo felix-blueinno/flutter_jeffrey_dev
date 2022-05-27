@@ -36,9 +36,9 @@ void main() async {
           return LoginPage();
         },
       ),
-      theme: FlexThemeData.dark(
-        scheme: usedScheme,
-      ),
+      theme: FlexThemeData.light(scheme: usedScheme, useMaterial3: true),
+      darkTheme: FlexThemeData.dark(scheme: usedScheme, useMaterial3: true),
+      themeMode: ThemeMode.dark,
     ),
   ));
 }
@@ -62,6 +62,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
+
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
@@ -130,11 +132,13 @@ class _LoginPageState extends State<LoginPage> {
 
                   /// Login button
                   CoverPageButton(
-                    child: Text('Login',
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
+                    text: 'Log in',
                     onTap: () =>
                         login(emailAddress: _email, password: _password),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    textStyle: TextStyle(
+                      color: isDark ? Colors.black : Colors.white,
+                    ),
                   ),
 
                   SizedBox(height: 16),
@@ -142,11 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                   /// Sign up button
                   CoverPageButton(
                     backgroundColor: Colors.transparent,
-                    child: Text(
-                      'Register',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+                    text: 'Register',
                     onTap: () =>
                         signUp(emailAddress: _email, password: _password),
                   ),
@@ -168,24 +168,13 @@ class _LoginPageState extends State<LoginPage> {
 
                   // Continue with Google button
                   CoverPageButton(
-                    onTap: () => signInWithGoogle(),
-                    backgroundColor: Color.fromRGBO(0, 0, 0, 0),
-                    child: Row(
-                      children: [
-                        Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png',
-                          height: 24,
-                        ),
-                        Spacer(),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        Spacer(),
-                      ],
+                    onTap: () => signInAnnonymously(),
+                    backgroundColor: Colors.transparent,
+                    prefix: Image.network(
+                      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png',
+                      height: 24,
                     ),
+                    text: 'Continue with Google',
                   ),
 
                   SizedBox(height: 16),
@@ -194,17 +183,11 @@ class _LoginPageState extends State<LoginPage> {
                   CoverPageButton(
                     onTap: () => signInAnnonymously(),
                     backgroundColor: Colors.transparent,
-                    child: Row(
-                      children: [
-                        Icon(Icons.person, color: Colors.white),
-                        Spacer(),
-                        Text('Continue anonymously',
-                            style: TextStyle(
-                              color: Colors.white,
-                            )),
-                        Spacer(),
-                      ],
+                    prefix: Icon(
+                      Icons.person,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
+                    text: 'Continue anonymously',
                   ),
                 ],
               ),
@@ -325,33 +308,51 @@ class _LoginPageState extends State<LoginPage> {
 
 class CoverPageButton extends StatelessWidget {
   final Function()? onTap;
-  final Widget child;
+  final String text;
+  final TextStyle? textStyle;
   final Color? backgroundColor;
   final Color? borderColor;
   final double borderRadius;
   final double widthFactor;
 
+  final Widget? prefix;
+
   const CoverPageButton({
     Key? key,
     required this.onTap,
-    required this.child,
+    required this.text,
     this.backgroundColor = Colors.white,
     this.borderColor = Colors.grey,
     this.borderRadius = 5,
     this.widthFactor = 1,
+    this.prefix,
+    this.textStyle,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      widthFactor: widthFactor,
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.8,
       child: OutlinedButton(
         onPressed: onTap,
-        child: child,
+        child: Row(
+          children: [
+            if (prefix != null) prefix!,
+            Spacer(),
+            Text(
+              text,
+              style: textStyle ??
+                  TextStyle(color: isDark ? Colors.white : Colors.black),
+            ),
+            Spacer(),
+          ],
+        ),
         style: OutlinedButton.styleFrom(
           backgroundColor: backgroundColor,
           side: BorderSide(color: borderColor!),
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          padding: EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
