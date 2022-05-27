@@ -192,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   // Continue anonymously button
                   CoverPageButton(
-                    onTap: () {},
+                    onTap: () => signInAnnonymously(),
                     backgroundColor: Colors.transparent,
                     child: Row(
                       children: [
@@ -292,6 +292,20 @@ class _LoginPageState extends State<LoginPage> {
           });
         }
       });
+    }
+  }
+
+  signInAnnonymously() async {
+    try {
+      FirebaseAuth.instance.signInAnonymously();
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "operation-not-allowed":
+          print("Anonymous auth hasn't been enabled for this project.");
+          break;
+        default:
+          print("Unknown error.");
+      }
     }
   }
 
