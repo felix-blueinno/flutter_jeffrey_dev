@@ -180,7 +180,8 @@ class _CalendarPageState extends State<CalendarPage> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.av_timer_rounded),
+                            const Icon(Icons.av_timer_rounded,
+                                color: Colors.white54),
                             const SizedBox(width: 8),
                             Text(
                               '${startTime.format(context)} - ${endTime.format(context)}',
