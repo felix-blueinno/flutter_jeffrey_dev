@@ -51,7 +51,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   /// ref: https://dribbble.com/shots/18219801-Mobile-App-Login-Signup
 
-  bool _visiblePw = false;
+  bool _obsecurePw = true;
 
   String _email = '';
   String _password = '';
@@ -95,16 +95,16 @@ class _LoginPageState extends State<LoginPage> {
                   /// Password
                   TextField(
                     onChanged: (value) => _password = value,
-                    obscureText: _visiblePw,
+                    obscureText: _obsecurePw,
                     decoration: InputDecoration(
                       labelText: 'Password',
                       hintText: 'Your password',
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: () =>
-                            setState(() => _visiblePw = !_visiblePw),
+                            setState(() => _obsecurePw = !_obsecurePw),
                         icon: Icon(
-                          _visiblePw ? Icons.visibility : Icons.visibility_off,
+                          _obsecurePw ? Icons.visibility : Icons.visibility_off,
                         ),
                       ),
                     ),
