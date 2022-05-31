@@ -346,16 +346,7 @@ class _CalendarPageState extends State<CalendarPage> {
       child: Column(
         children: [
           // drawer header
-          DrawerHeader(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.account_circle, size: 48),
-                Text(FirebaseAuth.instance.currentUser!.email.toString()),
-              ],
-            ),
-          ),
+          const DrawerHeader(child: Icon(Icons.account_circle, size: 48)),
 
           ListTile(
             title: const Text('Week'),
