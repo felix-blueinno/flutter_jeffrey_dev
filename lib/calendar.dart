@@ -80,84 +80,106 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
               child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ListView.separated(
-              separatorBuilder: (context, index) => const Divider(),
-              itemCount:
-                  events.where((e) => isSameDay(e.date, _selectedDay)).length,
-              itemBuilder: (context, index) {
-                final selectedEvents = events
-                    .where((e) => isSameDay(e.date, _selectedDay))
-                    .toList();
-
-                if (selectedEvents.isNotEmpty) {
-                  String title = selectedEvents[index].title;
-                  String description = selectedEvents[index].description.isEmpty
-                      ? 'No description'
-                      : selectedEvents[index].description;
-
-                  TimeOfDay startTime = selectedEvents[index].startTime;
-                  TimeOfDay endTime = selectedEvents[index].endTime;
-
-                  TextStyle contentStyle = TextStyle(
-                      fontSize: 16,
-                      color: Colors
-                          .primaries[index % Colors.primaries.length].shade100);
-
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors
-                          .primaries[index % Colors.primaries.length].shade800
-                          .withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors
-                                        .primaries[
-                                            index % Colors.primaries.length]
-                                        .shade100),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(description, style: contentStyle),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const Icon(Icons.av_timer_rounded),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${startTime.format(context)} - ${endTime.format(context)}',
-                                    style: contentStyle,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return const ListTile(
-                    title: Text(
-                  'No events on this day',
-                  style: TextStyle(color: Colors.white),
-                ));
-              },
-            ),
+            child: eventList(),
           )),
         ],
       ),
+    );
+  }
+
+  ListView eventList() {
+    return ListView.separated(
+      separatorBuilder: (context, index) => const Divider(),
+      itemCount: events.where((e) => isSameDay(e.date, _selectedDay)).length,
+      itemBuilder: (context, index) {
+        final selectedEvents =
+            events.where((e) => isSameDay(e.date, _selectedDay)).toList();
+
+        if (selectedEvents.isNotEmpty) {
+          selectedEvents.sort((a, b) {
+            /*
+                return 
+                      negative value if this TimeOfDay [isBefore].
+                      0 if this TimeOfDay [isAtSameMomentAs], and
+                      positive value otherwise (when this TimeOfDay [isAfter]).
+              */
+            if (a.startTime.hour < b.startTime.hour) {
+              return -1;
+            } else if (a.startTime.hour > b.startTime.hour) {
+              return 1;
+            } else {
+              if (a.startTime.minute < b.startTime.minute) {
+                return -1;
+              } else if (a.startTime.minute > b.startTime.minute) {
+                return 1;
+              } else {
+                return 0;
+              }
+            }
+          });
+
+          String title = selectedEvents[index].title;
+          String description = selectedEvents[index].description.isEmpty
+              ? 'No description'
+              : selectedEvents[index].description;
+
+          TimeOfDay startTime = selectedEvents[index].startTime;
+          TimeOfDay endTime = selectedEvents[index].endTime;
+
+          TextStyle contentStyle = TextStyle(
+              fontSize: 16,
+              color:
+                  Colors.primaries[index % Colors.primaries.length].shade100);
+
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.primaries[index % Colors.primaries.length].shade800
+                  .withOpacity(0.8),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors
+                                .primaries[index % Colors.primaries.length]
+                                .shade100),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(description, style: contentStyle),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.av_timer_rounded),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${startTime.format(context)} - ${endTime.format(context)}',
+                            style: contentStyle,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return const ListTile(
+            title: Text(
+          'No events on this day',
+          style: TextStyle(color: Colors.white),
+        ));
+      },
     );
   }
 
