@@ -72,7 +72,15 @@ class _CalendarPageState extends State<CalendarPage> {
         }),
         child: const Icon(Icons.add),
       ),
-      appBar: AppBar(title: const Text('Calendar')),
+      appBar: AppBar(
+        title: const Text('Calendar'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.today_sharp),
+            onPressed: () => setState(() => _focusedDay = DateTime.now()),
+          ),
+        ],
+      ),
       drawer: buildDrawer(context),
       body: Column(
         children: [
