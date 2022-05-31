@@ -289,11 +289,12 @@ class _CalendarPageState extends State<CalendarPage> {
 
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.2,
-                child: const TextField(
+                child: TextField(
                   expands: true,
                   minLines: null,
                   maxLines: null,
-                  decoration: InputDecoration(hintText: 'Description'),
+                  decoration: const InputDecoration(hintText: 'Description'),
+                  onChanged: (value) => description = value,
                 ),
               ),
 
