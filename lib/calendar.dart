@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,31 +13,149 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _selectedDay = DateTime.now();
-  DateTime _focusedDay = DateTime.now();
+  late DateTime _selectedDay;
+  late DateTime _focusedDay;
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _endController = TextEditingController();
 
+  List<Event> events = [];
+
+  @override
+  void initState() {
+    DateTime now = DateTime.now();
+    _selectedDay = DateTime(now.year, now.month, now.day);
+    _focusedDay = DateTime(now.year, now.month, now.day);
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('events')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        events = [];
+        for (var doc in snapshot.docs) {
+          setState(() {
+            final e = Event(
+              title: doc.data()['title'] as String,
+              date: DateTime.parse(doc.data()['date'] as String),
+              description: doc.data()['description'] as String,
+              startTime: TimeOfDay(
+                hour: int.parse(doc.data()['startTime'].split(':')[0]),
+                minute: int.parse(doc.data()['startTime'].split(':')[1]),
+              ),
+              endTime: TimeOfDay(
+                hour: int.parse(doc.data()['endTime'].split(':')[0]),
+                minute: int.parse(doc.data()['endTime'].split(':')[1]),
+              ),
+            );
+
+            events.add(e);
+          });
+        }
+      }
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(_selectedDay.toString());
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => newEvent(context).whenComplete(() {
           _startController.clear();
           _endController.clear();
         }),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
-      appBar: AppBar(title: Text('Calendar')),
+      appBar: AppBar(title: const Text('Calendar')),
       drawer: buildDrawer(context),
       body: Column(
         children: [
           calendar(),
-          Expanded(child: ListView()),
+          const SizedBox(height: 16),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView.separated(
+              separatorBuilder: (context, index) => const Divider(),
+              itemCount:
+                  events.where((e) => isSameDay(e.date, _selectedDay)).length,
+              itemBuilder: (context, index) {
+                final selectedEvents = events
+                    .where((e) => isSameDay(e.date, _selectedDay))
+                    .toList();
+
+                if (selectedEvents.isNotEmpty) {
+                  String title = selectedEvents[index].title;
+                  String description = selectedEvents[index].description.isEmpty
+                      ? 'No description'
+                      : selectedEvents[index].description;
+
+                  TimeOfDay startTime = selectedEvents[index].startTime;
+                  TimeOfDay endTime = selectedEvents[index].endTime;
+
+                  TextStyle contentStyle = TextStyle(
+                      fontSize: 16,
+                      color: Colors
+                          .primaries[index % Colors.primaries.length].shade100);
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors
+                          .primaries[index % Colors.primaries.length].shade800
+                          .withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors
+                                        .primaries[
+                                            index % Colors.primaries.length]
+                                        .shade100),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(description, style: contentStyle),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.av_timer_rounded),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${startTime.format(context)} - ${endTime.format(context)}',
+                                    style: contentStyle,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                return const ListTile(
+                    title: Text(
+                  'No events on this day',
+                  style: TextStyle(color: Colors.white),
+                ));
+              },
+            ),
+          )),
         ],
       ),
     );
@@ -68,7 +184,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
               /// Title field
               TextField(
-                decoration: InputDecoration(hintText: 'Title'),
+                decoration: const InputDecoration(hintText: 'Title'),
                 onChanged: (value) => title = value,
               ),
 
@@ -82,7 +198,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: TextField(
                       readOnly: true,
                       controller: _startController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           hintText: 'Starts',
                           prefixIcon: Icon(Icons.access_time)),
                       onTap: () {
@@ -106,7 +222,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     child: TextField(
                       readOnly: true,
                       controller: _endController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           hintText: 'End', prefixIcon: Icon(Icons.access_time)),
                       onTap: () {
                         Navigator.of(ctx)
@@ -128,7 +244,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.2,
-                child: TextField(
+                child: const TextField(
                   expands: true,
                   minLines: null,
                   maxLines: null,
@@ -139,31 +255,34 @@ class _CalendarPageState extends State<CalendarPage> {
               const SizedBox(height: 16),
 
               /// Save button
-              TextButton(
-                onPressed: () {
-                  if (title.isEmpty || startTime == null || endTime == null) {
-                    return;
-                  }
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    if (title.isEmpty || startTime == null || endTime == null) {
+                      return;
+                    }
 
-                  final event = Event(
-                    title: title,
-                    date: _selectedDay,
-                    description: description,
-                    startTime: startTime!,
-                    endTime: endTime!,
-                  );
+                    final event = Event(
+                      title: title,
+                      date: _selectedDay,
+                      description: description,
+                      startTime: startTime!,
+                      endTime: endTime!,
+                    );
 
-                  CollectionReference users =
-                      FirebaseFirestore.instance.collection('users');
+                    CollectionReference users =
+                        FirebaseFirestore.instance.collection('users');
 
-                  users
-                      .doc(FirebaseAuth.instance.currentUser!.uid)
-                      .collection('events')
-                      .add(event.toJson())
-                      .then((value) => print(value))
-                      .catchError((error) => print(error));
-                },
-                child: Text('Save'),
+                    users
+                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                        .collection('events')
+                        .add(event.toJson())
+                        .then((value) => Navigator.of(ctx).pop())
+                        .catchError((error) => print(error));
+                  },
+                  child: const Text('Save'),
+                ),
               ),
 
               const SizedBox(height: 8),
@@ -184,16 +303,15 @@ class _CalendarPageState extends State<CalendarPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.account_circle, size: 48),
-                // Text(FirebaseAuth.instance.currentUser!.email.toString()),
-                Text(FirebaseAuth.instance.currentUser!.uid),
+                const Icon(Icons.account_circle, size: 48),
+                Text(FirebaseAuth.instance.currentUser!.email.toString()),
               ],
             ),
           ),
 
           ListTile(
-            title: Text('Week'),
-            leading: Icon(Icons.calendar_view_week),
+            title: const Text('Week'),
+            leading: const Icon(Icons.calendar_view_week),
             onTap: () {
               setState(() {
                 _calendarFormat = CalendarFormat.week;
@@ -204,8 +322,8 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
 
           ListTile(
-            title: Text('Month'),
-            leading: Icon(Icons.calendar_month),
+            title: const Text('Month'),
+            leading: const Icon(Icons.calendar_month),
             onTap: () {
               setState(() {
                 _calendarFormat = CalendarFormat.month;
@@ -215,14 +333,14 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
 
           ListTile(
-            title: Text('Settings'),
-            leading: Icon(Icons.settings),
+            title: const Text('Settings'),
+            leading: const Icon(Icons.settings),
             onTap: () {},
           ),
 
           ListTile(
-            title: Text('Logout'),
-            leading: Icon(Icons.exit_to_app),
+            title: const Text('Logout'),
+            leading: const Icon(Icons.exit_to_app),
             onTap: () => FirebaseAuth.instance.signOut(),
           ),
         ],
@@ -246,7 +364,18 @@ class _CalendarPageState extends State<CalendarPage> {
           _focusedDay = focusedDay;
         });
       },
-      headerStyle: HeaderStyle(formatButtonVisible: false),
+      headerStyle: const HeaderStyle(formatButtonVisible: false),
+      calendarStyle: CalendarStyle(
+        markerDecoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          shape: BoxShape.circle,
+        ),
+      ),
+      eventLoader: (date) {
+        return events.where((event) {
+          return isSameDay(event.date, date);
+        }).toList();
+      },
     );
   }
 }

@@ -4,9 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_jeffrey_dev/event_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:provider/provider.dart';
 import 'calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -19,27 +17,23 @@ void main() async {
 
   const FlexScheme usedScheme = FlexScheme.materialBaseline;
 
-  runApp(ChangeNotifierProvider(
-    create: (context) => EventProvider(),
-    child: MaterialApp(
-      routes: {'/calendar': (context) => CalendarPage()},
-      debugShowCheckedModeBanner: false,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container();
-          }
-          if (snapshot.hasData) {
-            return CalendarPage();
-          }
-          return LoginPage();
-        },
-      ),
-      theme: FlexThemeData.light(scheme: usedScheme, useMaterial3: true),
-      darkTheme: FlexThemeData.dark(scheme: usedScheme, useMaterial3: true),
-      themeMode: ThemeMode.dark,
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container();
+        }
+        if (snapshot.hasData) {
+          return CalendarPage();
+        }
+        return LoginPage();
+      },
     ),
+    theme: FlexThemeData.light(scheme: usedScheme, useMaterial3: true),
+    darkTheme: FlexThemeData.dark(scheme: usedScheme, useMaterial3: true),
+    themeMode: ThemeMode.dark,
   ));
 }
 
