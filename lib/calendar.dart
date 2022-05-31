@@ -51,6 +51,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 hour: int.parse(doc.data()['endTime'].split(':')[0]),
                 minute: int.parse(doc.data()['endTime'].split(':')[1]),
               ),
+              docId: doc.id,
             );
 
             events.add(e);
@@ -131,45 +132,59 @@ class _CalendarPageState extends State<CalendarPage> {
               color:
                   Colors.primaries[index % Colors.primaries.length].shade100);
 
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.primaries[index % Colors.primaries.length].shade800
-                  .withOpacity(0.8),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors
-                                .primaries[index % Colors.primaries.length]
-                                .shade100),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(description, style: contentStyle),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.av_timer_rounded),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${startTime.format(context)} - ${endTime.format(context)}',
-                            style: contentStyle,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ],
+          return Dismissible(
+            key: UniqueKey(),
+            onDismissed: (direction) {
+              FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection('events')
+                  .doc(selectedEvents[index].docId)
+                  .delete();
+
+              setState(() => events.remove(selectedEvents[index]));
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors
+                    .primaries[index % Colors.primaries.length].shade800
+                    .withOpacity(0.8),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors
+                                  .primaries[index % Colors.primaries.length]
+                                  .shade100),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(description, style: contentStyle),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.av_timer_rounded),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${startTime.format(context)} - ${endTime.format(context)}',
+                              style: contentStyle,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

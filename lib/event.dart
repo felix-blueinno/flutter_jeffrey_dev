@@ -6,6 +6,7 @@ class Event {
   final String description;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
+  String docId;
 
   Event({
     required this.title,
@@ -13,6 +14,7 @@ class Event {
     required this.description,
     required this.startTime,
     required this.endTime,
+    this.docId = '',
   });
 
   Map<String, dynamic> toJson() {
