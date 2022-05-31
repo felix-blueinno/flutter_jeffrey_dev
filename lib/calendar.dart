@@ -3,6 +3,7 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jeffrey_dev/event.dart';
+import 'package:flutter_jeffrey_dev/theme_controller.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -377,6 +378,14 @@ class _CalendarPageState extends State<CalendarPage> {
                 Navigator.pop(context);
               });
             },
+          ),
+
+          ListTile(
+            title: const Text('Change theme'),
+            leading: const Icon(Icons.color_lens),
+            onTap: () => Theme.of(context).brightness == Brightness.light
+                ? ThemeController.isLightTheme.add(false)
+                : ThemeController.isLightTheme.add(true),
           ),
 
           ListTile(

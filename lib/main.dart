@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jeffrey_dev/theme_controller.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -17,24 +18,29 @@ void main() async {
 
   const FlexScheme usedScheme = FlexScheme.materialBaseline;
 
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+  runApp(StreamBuilder<bool>(
+      initialData: true,
+      stream: ThemeController.isLightTheme.stream,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container();
-        }
-        if (snapshot.hasData) {
-          return CalendarPage();
-        }
-        return LoginPage();
-      },
-    ),
-    theme: FlexThemeData.light(scheme: usedScheme, useMaterial3: true),
-    darkTheme: FlexThemeData.dark(scheme: usedScheme, useMaterial3: true),
-    themeMode: ThemeMode.dark,
-  ));
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container();
+              }
+              if (snapshot.hasData) {
+                return CalendarPage();
+              }
+              return LoginPage();
+            },
+          ),
+          theme: FlexThemeData.light(scheme: usedScheme, useMaterial3: true),
+          darkTheme: FlexThemeData.dark(scheme: usedScheme, useMaterial3: true),
+          themeMode: snapshot.data! ? ThemeMode.light : ThemeMode.dark,
+        );
+      }));
 }
 
 class LoginPage extends StatefulWidget {
