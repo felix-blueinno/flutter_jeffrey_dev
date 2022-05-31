@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jeffrey_dev/theme_controller.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:lottie/lottie.dart';
 import 'calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -76,7 +77,17 @@ class _LoginPageState extends State<LoginPage> {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(32.0),
-                      child: FlutterLogo(size: screenHeight * 0.2),
+                      child: ColorFiltered(
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).primaryColor,
+                          BlendMode.srcATop,
+                        ),
+                        child: Lottie.network(
+                          'https://assets3.lottiefiles.com/private_files/lf30_iraugwwv.json',
+                          height: screenHeight * 0.2,
+                          repeat: false,
+                        ),
+                      ),
                     ),
                   ),
 
