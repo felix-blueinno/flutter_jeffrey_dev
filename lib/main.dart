@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
@@ -31,9 +29,9 @@ void main() async {
                 return Container();
               }
               if (snapshot.hasData) {
-                return CalendarPage();
+                return const CalendarPage();
               }
-              return LoginPage();
+              return const LoginPage();
             },
           ),
           theme: FlexThemeData.light(scheme: usedScheme, useMaterial3: true),
@@ -85,14 +83,14 @@ class _LoginPageState extends State<LoginPage> {
                   /// Email
                   TextField(
                     onChanged: (value) => _email = value,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                       hintText: 'hello@example.com',
                       border: OutlineInputBorder(),
                     ),
                   ),
 
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
                   /// Password
                   TextField(
@@ -101,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       hintText: 'Your password',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         onPressed: () =>
                             setState(() => _visiblePw = !_visiblePw),
@@ -112,14 +110,14 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   /// Forgot password
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {},
-                      child: Text('Forgot Password?'),
+                      child: const Text('Forgot Password?'),
                       style: TextButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
@@ -128,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  SizedBox(height: 32),
+                  const SizedBox(height: 32),
 
                   /// Login button
                   CoverPageButton(
@@ -141,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   /// Sign up button
                   CoverPageButton(
@@ -151,20 +149,20 @@ class _LoginPageState extends State<LoginPage> {
                         signUp(emailAddress: _email, password: _password),
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   Row(
-                    children: [
+                    children: const [
                       Expanded(child: Divider(color: Colors.grey, height: 2)),
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: EdgeInsets.all(16.0),
                         child: Text('OR', style: TextStyle(color: Colors.grey)),
                       ),
                       Expanded(child: Divider(color: Colors.grey, height: 2)),
                     ],
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Continue with Google button
                   CoverPageButton(
@@ -177,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                     text: 'Continue with Google',
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Continue anonymously button
                   CoverPageButton(
@@ -204,12 +202,10 @@ class _LoginPageState extends State<LoginPage> {
     required String password,
   }) async {
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-      print(credential);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         showMyDialog('The password provided is too weak.');
@@ -219,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
         showMyDialog('Invalid email address.');
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) print(e);
     }
   }
 
@@ -231,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
-      print(credential);
+      if (kDebugMode) print(credential);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         showMyDialog('User not found.');
@@ -284,10 +280,13 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case "operation-not-allowed":
-          print("Anonymous auth hasn't been enabled for this project.");
+          if (kDebugMode) {
+            print("Anonymous auth hasn't been enabled for this project.");
+          }
+
           break;
         default:
-          print("Unknown error.");
+          if (kDebugMode) print("Unknown error.");
       }
     }
   }
@@ -298,7 +297,7 @@ class _LoginPageState extends State<LoginPage> {
           title: Text(msg),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -340,19 +339,19 @@ class CoverPageButton extends StatelessWidget {
         child: Row(
           children: [
             if (prefix != null) prefix!,
-            Spacer(),
+            const Spacer(),
             Text(
               text,
               style: textStyle ??
                   TextStyle(color: isDark ? Colors.white : Colors.black),
             ),
-            Spacer(),
+            const Spacer(),
           ],
         ),
         style: OutlinedButton.styleFrom(
           backgroundColor: backgroundColor,
           side: BorderSide(color: borderColor!),
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
