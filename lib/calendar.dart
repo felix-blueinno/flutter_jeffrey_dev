@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jeffrey_dev/event.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -23,6 +25,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(_selectedDay.toString());
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => newEvent(context).whenComplete(() {
@@ -64,7 +67,10 @@ class _CalendarPageState extends State<CalendarPage> {
               const SizedBox(height: 16),
 
               /// Title field
-              TextField(decoration: InputDecoration(hintText: 'Title')),
+              TextField(
+                decoration: InputDecoration(hintText: 'Title'),
+                onChanged: (value) => title = value,
+              ),
 
               const SizedBox(height: 16),
 
@@ -83,8 +89,12 @@ class _CalendarPageState extends State<CalendarPage> {
                         Navigator.of(ctx)
                             .push(showPicker(
                                 value: TimeOfDay.now(), onChange: (_) {}))
-                            .then((value) => _startController.text =
-                                (value as TimeOfDay).format(ctx));
+                            .then((value) {
+                          if (value != null) {
+                            startTime = value;
+                            _startController.text = startTime!.format(ctx);
+                          }
+                        });
                       },
                     ),
                   ),
@@ -102,8 +112,12 @@ class _CalendarPageState extends State<CalendarPage> {
                         Navigator.of(ctx)
                             .push(showPicker(
                                 value: TimeOfDay.now(), onChange: (_) {}))
-                            .then((value) => _endController.text =
-                                (value as TimeOfDay).format(ctx));
+                            .then((value) {
+                          if (value != null) {
+                            endTime = value;
+                            _endController.text = endTime!.format(ctx);
+                          }
+                        });
                       },
                     ),
                   ),
@@ -127,12 +141,27 @@ class _CalendarPageState extends State<CalendarPage> {
               /// Save button
               TextButton(
                 onPressed: () {
-                  if (title.isEmpty ||
-                      description.isEmpty ||
-                      startTime == null ||
-                      endTime == null) {
+                  if (title.isEmpty || startTime == null || endTime == null) {
                     return;
                   }
+
+                  final event = Event(
+                    title: title,
+                    date: _selectedDay,
+                    description: description,
+                    startTime: startTime!,
+                    endTime: endTime!,
+                  );
+
+                  CollectionReference users =
+                      FirebaseFirestore.instance.collection('users');
+
+                  users
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .collection('events')
+                      .add(event.toJson())
+                      .then((value) => print(value))
+                      .catchError((error) => print(error));
                 },
                 child: Text('Save'),
               ),
@@ -156,7 +185,8 @@ class _CalendarPageState extends State<CalendarPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.account_circle, size: 48),
-                Text(FirebaseAuth.instance.currentUser!.email.toString()),
+                // Text(FirebaseAuth.instance.currentUser!.email.toString()),
+                Text(FirebaseAuth.instance.currentUser!.uid),
               ],
             ),
           ),
