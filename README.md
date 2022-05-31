@@ -2,4 +2,6 @@
 
 # 2. `flutter pub get` to install necessary packages.
 
-# 2. `flutter run` to run the project.
+# 3. `flutter run` to run the project.
+
+# 4. `flutter run --multidex` if run on Android
