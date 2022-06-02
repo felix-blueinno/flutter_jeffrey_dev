@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Lottie.network(
                           'https://assets3.lottiefiles.com/private_files/lf30_iraugwwv.json',
                           height: screenHeight * 0.2,
-                          repeat: false,
+                          repeat: true,
                         ),
                       ),
                     ),
@@ -177,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   // Continue with Google button
                   CoverPageButton(
-                    onTap: () => signInAnnonymously(),
+                    onTap: () => signInWithGoogle(),
                     backgroundColor: Colors.transparent,
                     prefix: Image.network(
                       'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png',
